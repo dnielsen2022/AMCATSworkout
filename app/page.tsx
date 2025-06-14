@@ -2210,7 +2210,7 @@ export default function HockeyWorkoutApp() {
             {
               order: "1C",
               exercise: "Rotational 1 Arm Cable Row",
-              rpe: "70-%-75% of 1RM",
+              rpe: "70%-75% of 1RM",
               tempo: "1:1:1",
               week1: "3x6 ea",
               week2: "3x6 ea",
