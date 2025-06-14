@@ -2246,7 +2246,7 @@ export default function HockeyWorkoutApp() {
             {
               order: "3A",
               exercise: "Supine SL Cable Hip Flexion",
-              rpe: "65%-7-% of 1rm",
+              rpe: "65%-75% of 1RM",
               tempo: "1:1:3",
               week1: "2x5 ea",
               week2: "2x5 ea",
