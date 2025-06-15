@@ -9,13 +9,16 @@ export const metadata: Metadata = {
   title: "Hockey Workout Program",
   description: "Anna Maria Ice Hockey Summer Workout Program",
   manifest: "/manifest.json",
-  themeColor: "#8B1538",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Hockey Workout",
   },
-    generator: 'v0.dev'
+  generator: "v0.dev",
+}
+
+export const viewport = {
+  themeColor: "#8B1538",
 }
 
 export default function RootLayout({
