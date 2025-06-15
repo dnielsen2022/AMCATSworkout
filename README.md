@@ -16,9 +16,6 @@ Your project is live at:
 
 **[https://vercel.com/derek-nielsens-projects/v0-hockeyworkoutapp-i8](https://vercel.com/derek-nielsens-projects/v0-hockeyworkoutapp-i8)**
 
-Claude app live at:
-**[https://claude.ai/public/artifacts/6e90b2ae-21eb-4888-9559-fc912e929e27](https://claude.ai/public/artifacts/6e90b2ae-21eb-4888-9559-fc912e929e27)**
-
 ## Build your app
 
 Continue building your app on:
