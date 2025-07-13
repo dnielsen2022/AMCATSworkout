@@ -2167,12 +2167,13 @@ export default function HockeyWorkoutApp() {
   const renderNavigation = () => (
     <Card className="mb-6">
       <CardContent className="p-4">
-        <div className="flex flex-wrap gap-4 items-center justify-between">
-          <div className="flex items-center gap-4 flex-wrap">
+        <div className="space-y-4">
+          {/* First row: Main navigation buttons and selectors */}
+          <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
             <Button
               onClick={() => setActiveSection("overview")}
               variant={activeSection === "overview" ? "default" : "outline"}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm"
               style={{
                 backgroundColor: activeSection === "overview" ? colors.primary : "transparent",
                 borderColor: colors.primary,
@@ -2185,7 +2186,7 @@ export default function HockeyWorkoutApp() {
             <Button
               onClick={() => setActiveSection("summary")}
               variant={activeSection === "summary" ? "default" : "outline"}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm"
               style={{
                 backgroundColor: activeSection === "summary" ? colors.primary : "transparent",
                 borderColor: colors.primary,
@@ -2196,11 +2197,11 @@ export default function HockeyWorkoutApp() {
             </Button>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Phase:</span>
+              <span className="text-xs sm:text-sm font-medium text-gray-600">Phase:</span>
               <select
                 value={currentPhase}
                 onChange={(e) => setCurrentPhase(Number(e.target.value))}
-                className="px-3 py-1 rounded border text-sm"
+                className="px-2 py-1 rounded border text-xs sm:text-sm"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -2208,11 +2209,11 @@ export default function HockeyWorkoutApp() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Week:</span>
+              <span className="text-xs sm:text-sm font-medium text-gray-600">Week:</span>
               <select
                 value={currentWeek}
                 onChange={(e) => setCurrentWeek(Number(e.target.value))}
-                className="px-3 py-1 rounded border text-sm"
+                className="px-2 py-1 rounded border text-xs sm:text-sm"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -2221,11 +2222,11 @@ export default function HockeyWorkoutApp() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Day:</span>
+              <span className="text-xs sm:text-sm font-medium text-gray-600">Day:</span>
               <select
                 value={currentDay}
                 onChange={(e) => setCurrentDay(Number(e.target.value))}
-                className="px-3 py-1 rounded border text-sm"
+                className="px-2 py-1 rounded border text-xs sm:text-sm"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -2235,21 +2236,22 @@ export default function HockeyWorkoutApp() {
             </div>
 
             {/* Progress indicator */}
-            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100">
-              <span className="text-sm font-medium">Progress:</span>
-              <span className="text-sm font-bold" style={{ color: colors.primary }}>
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-lg bg-gray-100">
+              <span className="text-xs sm:text-sm font-medium">Progress:</span>
+              <span className="text-xs sm:text-sm font-bold" style={{ color: colors.primary }}>
                 {dayProgress.completed}/{dayProgress.total} ({dayProgress.percentage}%)
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Second row: User info, timer, and logout - stacked on mobile */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             {/* User info and logout */}
             {user && (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-lg bg-gray-100">
                   <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">{user.name}</span>
+                  <span className="text-xs sm:text-sm font-medium">{user.name}</span>
                   {user.role === "admin" && (
                     <Button
                       onClick={() => router.push("/admin")}
@@ -2261,66 +2263,76 @@ export default function HockeyWorkoutApp() {
                     </Button>
                   )}
                 </div>
-                <Button onClick={logout} size="sm" variant="outline" className="flex items-center gap-1 bg-transparent">
+                <Button
+                  onClick={logout}
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-1 bg-transparent text-xs sm:text-sm"
+                >
                   <LogOut className="w-4 h-4" />
                   Logout
                 </Button>
               </div>
             )}
 
-            {/* Timer */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: colors.secondary }}>
-              <Clock className="w-4 h-4" />
-              <span
-                className="font-mono text-lg font-bold text-white"
-                style={{ color: timer <= 10 && timer > 0 ? "#ef4444" : "white" }}
+            {/* Timer - full width on mobile */}
+            <div className="w-full sm:w-auto">
+              <div
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg justify-center sm:justify-start"
+                style={{ backgroundColor: colors.secondary }}
               >
-                {formatTime(timer)}
-              </span>
-              <div className="flex gap-1 ml-2">
-                <Button
-                  onClick={() => setIsRunning(!isRunning)}
-                  size="sm"
-                  variant="ghost"
-                  className="p-1 h-auto text-white hover:bg-white/20"
+                <Clock className="w-4 h-4" />
+                <span
+                  className="font-mono text-base sm:text-lg font-bold text-white"
+                  style={{ color: timer <= 10 && timer > 0 ? "#ef4444" : "white" }}
                 >
-                  {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </Button>
-                <Button
-                  onClick={resetTimer}
-                  size="sm"
-                  variant="ghost"
-                  className="p-1 h-auto text-white hover:bg-white/20"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="relative ml-2">
-                <Button
-                  onClick={() => setShowTimerDropdown(!showTimerDropdown)}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs px-2 py-1 h-auto bg-white text-gray-800 hover:bg-gray-100 flex items-center gap-1"
-                >
-                  Timer <ChevronDown className="w-3 h-3" />
-                </Button>
-                {showTimerDropdown && (
-                  <div className="absolute top-full mt-1 right-0 bg-white border rounded-md shadow-lg z-10 min-w-[120px]">
-                    <div className="py-1">
-                      {[15, 20, 25, 30, 40, 45, 50, 60, 90, 120, 180].map((seconds) => (
-                        <button
-                          key={seconds}
-                          onClick={() => startTimer(seconds)}
-                          className="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 text-gray-800"
-                        >
-                          {seconds < 60
-                            ? `${seconds}s`
-                            : `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`}
-                        </button>
-                      ))}
+                  {formatTime(timer)}
+                </span>
+                <div className="flex gap-1 ml-2">
+                  <Button
+                    onClick={() => setIsRunning(!isRunning)}
+                    size="sm"
+                    variant="ghost"
+                    className="p-1 h-auto text-white hover:bg-white/20"
+                  >
+                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    onClick={resetTimer}
+                    size="sm"
+                    variant="ghost"
+                    className="p-1 h-auto text-white hover:bg-white/20"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="relative ml-2">
+                  <Button
+                    onClick={() => setShowTimerDropdown(!showTimerDropdown)}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs px-2 py-1 h-auto bg-white text-gray-800 hover:bg-gray-100 flex items-center gap-1"
+                  >
+                    Timer <ChevronDown className="w-3 h-3" />
+                  </Button>
+                  {showTimerDropdown && (
+                    <div className="absolute top-full mt-1 right-0 bg-white border rounded-md shadow-lg z-10 min-w-[120px]">
+                      <div className="py-1">
+                        {[15, 20, 25, 30, 40, 45, 50, 60, 90, 120, 180].map((seconds) => (
+                          <button
+                            key={seconds}
+                            onClick={() => startTimer(seconds)}
+                            className="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 text-gray-800"
+                          >
+                            {seconds < 60
+                              ? `${seconds}s`
+                              : `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -2344,9 +2356,9 @@ export default function HockeyWorkoutApp() {
         style={{ borderLeftColor: completed ? "#10b981" : colors.secondary }}
       >
         <CardContent className="p-4">
-          <div className="flex justify-between items-start">
+          <div className="space-y-3">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
                 {exercise.order && (
                   <span
                     className="px-2 py-1 rounded text-white text-sm font-bold"
@@ -2355,14 +2367,16 @@ export default function HockeyWorkoutApp() {
                     {exercise.order}
                   </span>
                 )}
-                <h4 className={`font-semibold text-lg ${completed ? "line-through text-gray-500" : ""}`}>
+                <h4
+                  className={`font-semibold text-base sm:text-lg ${completed ? "line-through text-gray-500" : ""} flex-1`}
+                >
                   {exercise.exercise}
                 </h4>
                 {completed && <CheckCircle className="w-5 h-5 text-green-600" />}
               </div>
 
               <div className="bg-gray-50 rounded-lg p-3 mb-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                   {exercise.week1 && (
                     <div className="bg-white rounded p-2 border-l-4" style={{ borderLeftColor: colors.primary }}>
                       <span className="font-bold text-gray-700">Current Week:</span>
@@ -2403,10 +2417,11 @@ export default function HockeyWorkoutApp() {
               {exercise.description && <p className="text-sm text-gray-600 italic">{exercise.description}</p>}
             </div>
 
-            <div className="flex gap-2 ml-4 flex-col">
+            {/* Action buttons - stacked on mobile */}
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="flex gap-2">
                 <Button
-                  className=""
+                  className="flex-1 sm:flex-none text-sm"
                   style={{
                     backgroundColor: colors.secondary,
                     color: colors.white,
@@ -2425,6 +2440,7 @@ export default function HockeyWorkoutApp() {
                 <Button
                   onClick={() => handleExerciseComplete(exercise, section)}
                   disabled={completed}
+                  className="flex-1 sm:flex-none text-sm"
                   style={{
                     backgroundColor: completed ? "#10b981" : colors.primary,
                     color: colors.white,
