@@ -1,24 +1,19 @@
 "use client"
 
 import type React from "react"
-
-import { createContext, useContext, useEffect, useState } from "react"
-import { useAuth } from "./use-auth"
+import { createContext, useContext, useState, useEffect } from "react"
 
 interface ExerciseCompletion {
-  id: string
-  userId: string
+  exerciseId: string
+  exerciseName: string
+  section: "mobility" | "dynamic" | "warmup" | "exercises"
+  completedAt: string
   phase: number
   week: number
   day: number
-  exerciseId: string
-  exerciseName: string
-  completedAt: string
-  section: "mobility" | "dynamic" | "warmup" | "exercises"
 }
 
 interface ProgressContextType {
-  completions: ExerciseCompletion[]
   markExerciseComplete: (
     phase: number,
     week: number,
@@ -28,36 +23,47 @@ interface ProgressContextType {
     section: "mobility" | "dynamic" | "warmup" | "exercises",
   ) => void
   isExerciseComplete: (phase: number, week: number, day: number, exerciseId: string) => boolean
-  getDayProgress: (
-    phase: number,
-    week: number,
-    day: number,
-  ) => {
-    completed: number
-    total: number
-    percentage: number
-  }
-  getAllUserProgress: () => { [userId: string]: ExerciseCompletion[] }
-  deleteUserProgress: (userId: string) => void
+  getDayProgress: (phase: number, week: number, day: number) => { completed: number; total: number; percentage: number }
   getUserProgress: (userId: string) => ExerciseCompletion[]
+  getAllUsersProgress: () => { [userId: string]: ExerciseCompletion[] }
+  deleteUserProgress: (userId: string) => void
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined)
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
   const [completions, setCompletions] = useState<ExerciseCompletion[]>([])
 
+  // Get current user ID from localStorage
+  const getCurrentUserId = () => {
+    const storedUser = localStorage.getItem("amcats_user")
+    if (storedUser) {
+      const user = JSON.parse(storedUser)
+      return user.id
+    }
+    return null
+  }
+
   useEffect(() => {
-    // Load completions from localStorage
-    const stored = localStorage.getItem("workout-completions")
-    if (stored) {
-      const allCompletions = JSON.parse(stored)
-      if (user) {
-        setCompletions(allCompletions.filter((c: ExerciseCompletion) => c.userId === user.id))
+    // Load completions for current user
+    const userId = getCurrentUserId()
+    if (userId) {
+      const stored = localStorage.getItem(`amcats_progress_${userId}`)
+      if (stored) {
+        setCompletions(JSON.parse(stored))
       }
     }
-  }, [user])
+  }, [])
+
+  const saveCompletions = (userId: string, newCompletions: ExerciseCompletion[]) => {
+    localStorage.setItem(`amcats_progress_${userId}`, JSON.stringify(newCompletions))
+
+    // If it's the current user, update state
+    const currentUserId = getCurrentUserId()
+    if (userId === currentUserId) {
+      setCompletions(newCompletions)
+    }
+  }
 
   const markExerciseComplete = (
     phase: number,
@@ -67,96 +73,106 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     exerciseName: string,
     section: "mobility" | "dynamic" | "warmup" | "exercises",
   ) => {
-    if (!user) return
+    const userId = getCurrentUserId()
+    if (!userId) return
 
-    const completion: ExerciseCompletion = {
-      id: `${user.id}-${phase}-${week}-${day}-${exerciseId}-${Date.now()}`,
-      userId: user.id,
+    const newCompletion: ExerciseCompletion = {
+      exerciseId,
+      exerciseName,
+      section,
+      completedAt: new Date().toISOString(),
       phase,
       week,
       day,
-      exerciseId,
-      exerciseName,
-      completedAt: new Date().toISOString(),
-      section,
     }
 
-    // Update local state
-    setCompletions((prev) => [...prev, completion])
+    const userCompletions = getUserProgress(userId)
+    const existingIndex = userCompletions.findIndex(
+      (c) => c.phase === phase && c.week === week && c.day === day && c.exerciseId === exerciseId,
+    )
 
-    // Update localStorage with all completions
-    const stored = localStorage.getItem("workout-completions")
-    const allCompletions = stored ? JSON.parse(stored) : []
-    allCompletions.push(completion)
-    localStorage.setItem("workout-completions", JSON.stringify(allCompletions))
+    let updatedCompletions
+    if (existingIndex >= 0) {
+      // Update existing completion
+      updatedCompletions = [...userCompletions]
+      updatedCompletions[existingIndex] = newCompletion
+    } else {
+      // Add new completion
+      updatedCompletions = [...userCompletions, newCompletion]
+    }
+
+    saveCompletions(userId, updatedCompletions)
   }
 
-  const isExerciseComplete = (phase: number, week: number, day: number, exerciseId: string) => {
-    return completions.some((c) => c.phase === phase && c.week === week && c.day === day && c.exerciseId === exerciseId)
+  const isExerciseComplete = (phase: number, week: number, day: number, exerciseId: string): boolean => {
+    const userId = getCurrentUserId()
+    if (!userId) return false
+
+    const userCompletions = getUserProgress(userId)
+    return userCompletions.some(
+      (c) => c.phase === phase && c.week === week && c.day === day && c.exerciseId === exerciseId,
+    )
   }
 
   const getDayProgress = (phase: number, week: number, day: number) => {
-    // This would need to be updated based on your actual exercise data structure
+    // This is a simplified calculation - in a real app, you'd have the actual exercise counts
     // For now, we'll estimate based on typical workout structure
-    const totalExercises = 20 // Approximate total exercises per day
-    const completed = completions.filter((c) => c.phase === phase && c.week === week && c.day === day).length
-
-    return {
-      completed,
-      total: totalExercises,
-      percentage: Math.round((completed / totalExercises) * 100),
+    const estimatedTotals = {
+      mobility: 7,
+      dynamic: 5,
+      warmup: 2,
+      exercises: 8,
     }
+    const totalExercises = Object.values(estimatedTotals).reduce((sum, count) => sum + count, 0)
+
+    const userId = getCurrentUserId()
+    if (!userId) return { completed: 0, total: totalExercises, percentage: 0 }
+
+    const userCompletions = getUserProgress(userId)
+    const dayCompletions = userCompletions.filter((c) => c.phase === phase && c.week === week && c.day === day)
+
+    const completed = dayCompletions.length
+    const percentage = totalExercises > 0 ? Math.round((completed / totalExercises) * 100) : 0
+
+    return { completed, total: totalExercises, percentage }
   }
 
-  const getAllUserProgress = () => {
-    const stored = localStorage.getItem("workout-completions")
-    if (!stored) return {}
+  const getUserProgress = (userId: string): ExerciseCompletion[] => {
+    const stored = localStorage.getItem(`amcats_progress_${userId}`)
+    return stored ? JSON.parse(stored) : []
+  }
 
-    const allCompletions: ExerciseCompletion[] = JSON.parse(stored)
-    const userProgress: { [userId: string]: ExerciseCompletion[] } = {}
+  const getAllUsersProgress = (): { [userId: string]: ExerciseCompletion[] } => {
+    const allProgress: { [userId: string]: ExerciseCompletion[] } = {}
 
-    allCompletions.forEach((completion) => {
-      if (!userProgress[completion.userId]) {
-        userProgress[completion.userId] = []
-      }
-      userProgress[completion.userId].push(completion)
+    // Get all users from demo data
+    const demoUsers = [
+      { id: "1", email: "admin@amcats.com", name: "Coach Admin", role: "admin" },
+      { id: "2", email: "player1@amcats.com", name: "Player One", role: "user" },
+      { id: "3", email: "player2@amcats.com", name: "Player Two", role: "user" },
+      { id: "4", email: "player3@amcats.com", name: "Player Three", role: "user" },
+    ]
+
+    demoUsers.forEach((user) => {
+      allProgress[user.id] = getUserProgress(user.id)
     })
 
-    return userProgress
-  }
-
-  const getUserProgress = (userId: string) => {
-    const stored = localStorage.getItem("workout-completions")
-    if (!stored) return []
-
-    const allCompletions: ExerciseCompletion[] = JSON.parse(stored)
-    return allCompletions.filter((completion) => completion.userId === userId)
+    return allProgress
   }
 
   const deleteUserProgress = (userId: string) => {
-    const stored = localStorage.getItem("workout-completions")
-    if (!stored) return
-
-    const allCompletions: ExerciseCompletion[] = JSON.parse(stored)
-    const filteredCompletions = allCompletions.filter((completion) => completion.userId !== userId)
-    localStorage.setItem("workout-completions", JSON.stringify(filteredCompletions))
-
-    // Update local state if the deleted user is the current user
-    if (user && user.id === userId) {
-      setCompletions([])
-    }
+    localStorage.removeItem(`amcats_progress_${userId}`)
   }
 
   return (
     <ProgressContext.Provider
       value={{
-        completions,
         markExerciseComplete,
         isExerciseComplete,
         getDayProgress,
-        getAllUserProgress,
-        deleteUserProgress,
         getUserProgress,
+        getAllUsersProgress,
+        deleteUserProgress,
       }}
     >
       {children}

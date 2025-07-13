@@ -1,157 +1,77 @@
 "use client"
 
-import type React from "react"
-
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 interface User {
   id: string
   email: string
   name: string
   role: "user" | "admin"
-  createdAt: string
 }
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string) => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
   logout: () => void
-  loading: boolean
   deleteUser: (userId: string) => void
-  getAllUsers: () => User[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Demo users for development
-const DEMO_USERS = [
-  {
-    id: "admin-1",
-    email: "admin@amcats.com",
-    password: "admin123",
-    name: "Admin User",
-    role: "admin" as const,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "user-1",
-    email: "player1@amcats.com",
-    password: "player123",
-    name: "John Smith",
-    role: "user" as const,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "user-2",
-    email: "player2@amcats.com",
-    password: "player123",
-    name: "Sarah Johnson",
-    role: "user" as const,
-    createdAt: new Date().toISOString(),
-  },
+// Demo users
+const demoUsers: User[] = [
+  { id: "1", email: "admin@amcats.com", name: "Coach Admin", role: "admin" },
+  { id: "2", email: "player1@amcats.com", name: "Player One", role: "user" },
+  { id: "3", email: "player2@amcats.com", name: "Player Two", role: "user" },
+  { id: "4", email: "player3@amcats.com", name: "Player Three", role: "user" },
 ]
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [users, setUsers] = useState(DEMO_USERS)
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem("workout-user")
+    const storedUser = localStorage.getItem("amcats_user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
-
-    // Load users from localStorage
-    const storedUsers = localStorage.getItem("workout-users")
-    if (storedUsers) {
-      setUsers(JSON.parse(storedUsers))
-    } else {
-      localStorage.setItem("workout-users", JSON.stringify(DEMO_USERS))
-    }
-
-    setLoading(false)
   }, [])
 
-  const login = async (email: string, password: string) => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
+  const login = async (email: string, password: string): Promise<boolean> => {
+    // Demo authentication
+    const foundUser = demoUsers.find((u) => u.email === email)
 
-    const demoUser = users.find((u) => u.email === email && u.password === password)
-    if (!demoUser) {
-      throw new Error("Invalid email or password")
+    if (
+      foundUser &&
+      ((email === "admin@amcats.com" && password === "admin123") ||
+        (email.includes("player") && password === "player123"))
+    ) {
+      setUser(foundUser)
+      localStorage.setItem("amcats_user", JSON.stringify(foundUser))
+      return true
     }
 
-    const { password: _, ...userWithoutPassword } = demoUser
-    setUser(userWithoutPassword)
-    localStorage.setItem("workout-user", JSON.stringify(userWithoutPassword))
-  }
-
-  const register = async (email: string, password: string, name: string) => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Check if user already exists
-    const existingUser = users.find((u) => u.email === email)
-    if (existingUser) {
-      throw new Error("User with this email already exists")
-    }
-
-    // Create new user
-    const newUser = {
-      id: `user-${Date.now()}`,
-      email,
-      name,
-      role: "user" as const,
-      createdAt: new Date().toISOString(),
-    }
-
-    // Add to users array
-    const updatedUsers = [...users, { ...newUser, password }]
-    setUsers(updatedUsers)
-    localStorage.setItem("workout-users", JSON.stringify(updatedUsers))
-
-    setUser(newUser)
-    localStorage.setItem("workout-user", JSON.stringify(newUser))
-  }
-
-  const deleteUser = (userId: string) => {
-    const updatedUsers = users.filter((u) => u.id !== userId)
-    setUsers(updatedUsers)
-    localStorage.setItem("workout-users", JSON.stringify(updatedUsers))
-
-    // If the deleted user is currently logged in, log them out
-    if (user && user.id === userId) {
-      logout()
-    }
-  }
-
-  const getAllUsers = () => {
-    return users.map(({ password, ...user }) => user)
+    return false
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("workout-user")
+    localStorage.removeItem("amcats_user")
   }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        register,
-        logout,
-        loading,
-        deleteUser,
-        getAllUsers,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  const deleteUser = (userId: string) => {
+    // Remove user from demo users (in real app, this would be an API call)
+    const userIndex = demoUsers.findIndex((u) => u.id === userId)
+    if (userIndex > -1) {
+      demoUsers.splice(userIndex, 1)
+    }
+
+    // Also remove their progress data
+    const progressKey = `amcats_progress_${userId}`
+    localStorage.removeItem(progressKey)
+  }
+
+  return <AuthContext.Provider value={{ user, login, logout, deleteUser }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
