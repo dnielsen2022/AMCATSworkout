@@ -1976,11 +1976,6 @@ export default function HockeyWorkoutApp() {
           mobility: [
             {
               exercise: "Ankle Rockers",
-              sets\`\`\`typescript\
-day1: {
-          mobility: [
-            {
-              exercise: "Ankle Rockers",
               sets: "1x6-10 ea",
               description: "Rock ankles forward and back",
             },
@@ -2393,7 +2388,7 @@ day1: {
               tempo: "1:1:2",
               week1: "4x1.1.1 ea",
               week2: "4x2.1.1 ea",
-              week3: "4x2.2",
+              week3: "4x2.2 ea",
             },
             {
               order: "2B",
@@ -2585,11 +2580,11 @@ day1: {
             },
           ],
         },
-      },\
+      },
     },
   }
 
-  // Add function to get current workout data based on selections\
+  // Add function to get current workout data based on selections
   const getCurrentWorkoutData = (): WorkoutData => {
     const phaseKey = `phase${currentPhase}` as keyof typeof allProgramData
     const weekKey = `week${currentWeek}` as keyof (typeof allProgramData)[typeof phaseKey]
@@ -2610,21 +2605,21 @@ day1: {
     return workoutData
   }
 
-  // Replace the old programData usage with getCurrentWorkoutData()\
+  // Replace the old programData usage with getCurrentWorkoutData()
   const programData = getCurrentWorkoutData()
-\
+
   const handleExerciseComplete = (exercise: Exercise, section: "mobility" | "dynamic" | "warmup" | "exercises") => {
-    const exerciseId = `${section}-${exercise.exercise.replace(/\s+/g, '-').toLowerCase()}`
+    const exerciseId = `${section}-${exercise.exercise.replace(/\s+/g, "-").toLowerCase()}`
     markExerciseComplete(currentPhase, currentWeek, currentDay, exerciseId, exercise.exercise, section)
   }
-\
+
   const isCompleted = (exercise: Exercise, section: "mobility" | "dynamic" | "warmup" | "exercises") => {
-    const exerciseId = `${section}-${exercise.exercise.replace(/\s+/g, '-').toLowerCase()}`
+    const exerciseId = `${section}-${exercise.exercise.replace(/\s+/g, "-").toLowerCase()}`
     return isExerciseComplete(currentPhase, currentWeek, currentDay, exerciseId)
   }
-\
+
   const dayProgress = getDayProgress(currentPhase, currentWeek, currentDay)
-\
+
   const renderNavigation = () => (
     <Card className="mb-6">
       <CardContent className="p-4">
@@ -2722,12 +2717,7 @@ day1: {
                     </Button>
                   )}
                 </div>
-                <Button
-                  onClick={logout}
-                  size="sm"
-                  variant="outline"
-                  className="flex items-center gap-1 bg-transparent"
-                >
+                <Button onClick={logout} size="sm" variant="outline" className="flex items-center gap-1 bg-transparent">
                   <LogOut className="w-4 h-4" />
                   Logout
                 </Button>
@@ -2794,13 +2784,21 @@ day1: {
       </CardContent>
     </Card>
   )
-\
-  const renderExerciseCard = (exercise: Exercise, index: number, section: "mobility" | "dynamic" | "warmup" | "exercises") => {
+
+  const renderExerciseCard = (
+    exercise: Exercise,
+    index: number,
+    section: "mobility" | "dynamic" | "warmup" | "exercises",
+  ) => {
     const exerciseTimes = getExerciseTime(exercise)
     const completed = isCompleted(exercise, section)
 
     return (
-      <Card key={index} className={`border-l-4 ${completed ? 'bg-green-50' : ''}`} style={{ borderLeftColor: completed ? '#10b981' : colors.secondary }}>
+      <Card
+        key={index}
+        className={`border-l-4 ${completed ? "bg-green-50" : ""}`}
+        style={{ borderLeftColor: completed ? "#10b981" : colors.secondary }}
+      >
         <CardContent className="p-4">
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -2813,7 +2811,7 @@ day1: {
                     {exercise.order}
                   </span>
                 )}
-                <h4 className={`font-semibold text-lg ${completed ? 'line-through text-gray-500' : ''}`}>
+                <h4 className={`font-semibold text-lg ${completed ? "line-through text-gray-500" : ""}`}>
                   {exercise.exercise}
                 </h4>
                 {completed && <CheckCircle className="w-5 h-5 text-green-600" />}
@@ -2879,20 +2877,20 @@ day1: {
                   <Play className="w-4 h-4 mr-2" />
                   Demo
                 </Button>
-                
+
                 <Button
                   onClick={() => handleExerciseComplete(exercise, section)}
                   disabled={completed}
                   style={{
-                    backgroundColor: completed ? '#10b981' : colors.primary,
+                    backgroundColor: completed ? "#10b981" : colors.primary,
                     color: colors.white,
                   }}
                 >
                   {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : null}
-                  {completed ? 'Done' : 'Complete'}
+                  {completed ? "Done" : "Complete"}
                 </Button>
               </div>
-              
+
               {exerciseTimes.length > 0 && (
                 <div className="flex gap-1 flex-wrap">
                   {exerciseTimes.map((time, idx) => (
@@ -2915,8 +2913,13 @@ day1: {
       </Card>
     )
   }
-\
-  const renderWorkoutSection = (title: string, exercises: Exercise[], icon: string, section: "mobility" | "dynamic" | "warmup" | "exercises") => (
+
+  const renderWorkoutSection = (
+    title: string,
+    exercises: Exercise[],
+    icon: string,
+    section: "mobility" | "dynamic" | "warmup" | "exercises",
+  ) => (
     <div className="mb-8">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-lg text-xl" style={{ backgroundColor: colors.primary, color: "white" }}>
@@ -2930,10 +2933,12 @@ day1: {
         </div>
       </div>
 
-      <div className="grid gap-4">{exercises.map((exercise, index) => renderExerciseCard(exercise, index, section))}</div>
+      <div className="grid gap-4">
+        {exercises.map((exercise, index) => renderExerciseCard(exercise, index, section))}
+      </div>
     </div>
   )
-\
+
   const renderOverview = () => (
     <div className="space-y-6">
       <Card style={{ backgroundColor: colors.primary, color: colors.white }}>
@@ -2988,24 +2993,24 @@ day1: {
       </Card>
     </div>
   )
-\
-  const renderSummary = () => (\
-    <div className=\"space-y-6\">\
+
+  const renderSummary = () => (
+    <div className="space-y-6">
       <Card style={{ backgroundColor: colors.primary, color: colors.white }}>
-        <CardContent className=\"text-center p-6">
+        <CardContent className="text-center p-6">
           <h1 className="text-2xl font-bold mb-2">Complete Workout Summary</h1>
-          <div className=\"text-lg\" style={{ color: colors.secondary }}>\
+          <div className="text-lg" style={{ color: colors.secondary }}>
             Phase {currentPhase} • Week {currentWeek} • Day {currentDay}
-          </div>\
-          <div className="mt-2 text-lg">\
-            Progress: {dayProgress.completed}/{dayProgress.total} exercises ({dayProgress.percentage}%)\
-          </div>\
+          </div>
+          <div className="mt-2 text-lg">
+            Progress: {dayProgress.completed}/{dayProgress.total} exercises ({dayProgress.percentage}%)
+          </div>
         </CardContent>
       </Card>
 
-      {[\
-        { name: \"Mobility\", data: programData.mobility, icon: "🧘", section: \"mobility" as const },\
-        { name: "Dynamic\", data: programData.dynamic, icon: "🏃", section: "dynamic" as const },
+      {[
+        { name: "Mobility", data: programData.mobility, icon: "🧘", section: "mobility" as const },
+        { name: "Dynamic", data: programData.dynamic, icon: "🏃", section: "dynamic" as const },
         { name: "Warm-up", data: programData.warmup, icon: "🔥", section: "warmup" as const },
         { name: "Main Workout", data: programData.exercises, icon: "💪", section: "exercises" as const },
       ].map((section, index) => (
@@ -3018,7 +3023,9 @@ day1: {
                 {section.data.filter((ex) => isCompleted(ex, section.section)).length}/{section.data.length} completed
               </span>
             </h2>
-            <div className="grid gap-3">{section.data.map((exercise, idx) => renderExerciseCard(exercise, idx, section.section))}</div>
+            <div className="grid gap-3">
+              {section.data.map((exercise, idx) => renderExerciseCard(exercise, idx, section.section))}
+            </div>
           </CardContent>
         </Card>
       ))}
@@ -3039,8 +3046,7 @@ day1: {
   )
 
   // Close dropdown when clicking outside
-  useEffect(() =>
-  {
+  useEffect(() => {
     const handleClickOutside = () => {
       setShowTimerDropdown(false)
     }
@@ -3049,8 +3055,7 @@ day1: {
       document.addEventListener("click", handleClickOutside)
       return () => document.removeEventListener("click", handleClickOutside)
     }
-  }
-  , [showTimerDropdown])
+  }, [showTimerDropdown])
 
   if (!user) {
     return null
@@ -3135,4 +3140,3 @@ day1: {
     </div>
   )
 }
-</merged_code>
