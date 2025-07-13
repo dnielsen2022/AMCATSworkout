@@ -2606,38 +2606,22 @@ export default function HockeyWorkoutApp() {
   }
 
   return (
-    <div
-      className="min-h-screen relative"
-      style={{
-        background: `
-          linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%),
-          linear-gradient(90deg, transparent 0%, rgba(0, 100, 200, 0.3) 20%, transparent 21%, transparent 79%, rgba(0, 100, 200, 0.3) 80%, transparent 100%),
-          linear-gradient(90deg, transparent 49%, rgba(200, 0, 0, 0.4) 49.5%, rgba(200, 0, 0, 0.4) 50.5%, transparent 51%),
-          radial-gradient(ellipse 3px 15px at 10% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 15% 25%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 25% 35%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 35% 45%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 45% 55%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 55% 65%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 65% 75%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 75% 85%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 85% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          radial-gradient(ellipse 3px 15px at 90% 30%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
-          conic-gradient(from 45deg at 20% 40%, transparent 0deg, rgba(255, 255, 255, 0.3) 15deg, transparent 30deg),
-          conic-gradient(from 135deg at 80% 60%, transparent 0deg, rgba(255, 255, 255, 0.3) 15deg, transparent 30deg),
-          conic-gradient(from 225deg at 30% 80%, transparent 0deg, rgba(255, 255, 255, 0.3) 10deg, transparent 20deg),
-          conic-gradient(from 315deg at 70% 20%, transparent 0deg, rgba(255, 255, 255, 0.3) 10deg, transparent 20deg)
-        `,
-        backgroundSize: `
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100% 100%,
-          100
+    <>
+      <div className="min-h-screen relative" style={{ backgroundColor: colors.lightGray }}>
+        {/* Top nav / controls */}
+        {renderNavigation()}
+
+        {/* Main content area */}
+        <div className="p-4 space-y-6">
+          {activeSection === "overview" && renderOverview()}
+          {activeSection === "summary" && renderSummary()}
+          {activeSection === "mobility" && renderWorkoutSection("Mobility", programData.mobility, "🧘", "mobility")}
+          {activeSection === "dynamic" && renderWorkoutSection("Dynamic", programData.dynamic, "🏃", "dynamic")}
+          {activeSection === "warmup" && renderWorkoutSection("Warm-up", programData.warmup, "🔥", "warmup")}
+          {activeSection === "exercises" &&
+            renderWorkoutSection("Main Workout", programData.exercises, "💪", "exercises")}
+        </div>
+      </div>
+    </>
+  )
+}
