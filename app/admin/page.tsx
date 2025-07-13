@@ -152,6 +152,7 @@ export default function AdminPage() {
                     onClick={() => setSelectedUser(null)}
                     variant="outline"
                     className="text-white border-white hover:bg-white hover:text-gray-900"
+                    style={{ backgroundColor: "transparent" }}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Dashboard
@@ -165,6 +166,7 @@ export default function AdminPage() {
                   onClick={() => router.push("/")}
                   variant="outline"
                   className="text-white border-white hover:bg-white hover:text-gray-900"
+                  style={{ backgroundColor: "transparent" }}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Main
@@ -346,6 +348,7 @@ export default function AdminPage() {
                   onClick={() => router.push("/")}
                   variant="outline"
                   className="text-white border-white hover:bg-white hover:text-gray-900"
+                  style={{ backgroundColor: "transparent" }}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Main
