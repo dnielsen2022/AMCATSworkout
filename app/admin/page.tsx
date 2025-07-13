@@ -141,56 +141,61 @@ export default function AdminPage() {
     const userName = demoUsers.find((u) => u.id === selectedUser)?.name || "Unknown User"
 
     return (
-      <div className="min-h-screen p-6" style={{ backgroundColor: colors.lightGray }}>
+      <div className="min-h-screen p-4 sm:p-6" style={{ backgroundColor: colors.lightGray }}>
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
+          {/* Header - Mobile Responsive */}
           <Card className="mb-6" style={{ backgroundColor: colors.primary, color: colors.white }}>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="space-y-4">
+                {/* Title and user info */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex-1">
+                    <CardTitle className="text-xl sm:text-2xl">User Exercise History</CardTitle>
+                    <p className="opacity-90 text-sm sm:text-base">{userName}</p>
+                  </div>
+                </div>
+
+                {/* Action buttons - Stack on mobile */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <Button
                     onClick={() => setSelectedUser(null)}
                     variant="outline"
-                    className="text-white border-white hover:bg-white hover:text-gray-900"
+                    className="text-white border-white hover:bg-white hover:text-gray-900 text-sm sm:text-base"
                     style={{ backgroundColor: "transparent" }}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Dashboard
                   </Button>
-                  <div>
-                    <CardTitle className="text-2xl">User Exercise History</CardTitle>
-                    <p className="opacity-90">{userName}</p>
-                  </div>
+                  <Button
+                    onClick={() => router.push("/")}
+                    variant="outline"
+                    className="text-white border-white hover:bg-white hover:text-gray-900 text-sm sm:text-base"
+                    style={{ backgroundColor: "transparent" }}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Main
+                  </Button>
                 </div>
-                <Button
-                  onClick={() => router.push("/")}
-                  variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-gray-900"
-                  style={{ backgroundColor: "transparent" }}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Main
-                </Button>
               </div>
             </CardHeader>
           </Card>
 
-          {/* Filters */}
+          {/* Filters - Mobile Responsive */}
           <Card className="mb-6">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <Filter className="w-5 h-5" />
                   Filters
                 </CardTitle>
-                <Button onClick={clearFilters} variant="outline" size="sm">
+                <Button onClick={clearFilters} variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">
                   <X className="w-4 h-4 mr-2" />
                   Clear All
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Phase</label>
                   <select
@@ -269,10 +274,10 @@ export default function AdminPage() {
             </CardContent>
           </Card>
 
-          {/* Exercise History */}
+          {/* Exercise History - Mobile Responsive Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Exercise Completions</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Exercise Completions</CardTitle>
             </CardHeader>
             <CardContent>
               {filteredCompletions.length === 0 ? (
@@ -281,7 +286,36 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
+                  {/* Mobile Card View */}
+                  <div className="block sm:hidden space-y-4">
+                    {filteredCompletions
+                      .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+                      .map((completion, index) => (
+                        <Card key={index} className="border">
+                          <CardContent className="p-4">
+                            <div className="space-y-2">
+                              <div className="font-medium text-base">{completion.exerciseName}</div>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${getSectionColor(completion.section)}`}
+                                >
+                                  {completion.section}
+                                </span>
+                                <span className="text-sm text-gray-600">
+                                  P{completion.phase}W{completion.week}D{completion.day}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {new Date(completion.completedAt).toLocaleString()}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <table className="hidden sm:table w-full border-collapse">
                     <thead>
                       <tr className="border-b">
                         <th className="text-left p-3 font-medium">Exercise</th>
@@ -325,21 +359,21 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: colors.lightGray }}>
+    <div className="min-h-screen p-4 sm:p-6" style={{ backgroundColor: colors.lightGray }}>
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {/* Header - Mobile Responsive */}
         <Card className="mb-6" style={{ backgroundColor: colors.primary, color: colors.white }}>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="space-y-4">
               <div>
-                <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
-                <p className="opacity-90">Workout Progress Report</p>
+                <CardTitle className="text-xl sm:text-2xl">Admin Dashboard</CardTitle>
+                <p className="opacity-90 text-sm sm:text-base">Workout Progress Report</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                 <Button
                   onClick={exportToCSV}
                   variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-gray-900 bg-transparent"
+                  className="text-white border-white hover:bg-white hover:text-gray-900 bg-transparent text-sm sm:text-base"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
@@ -347,7 +381,7 @@ export default function AdminPage() {
                 <Button
                   onClick={() => router.push("/")}
                   variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-gray-900"
+                  className="text-white border-white hover:bg-white hover:text-gray-900 text-sm sm:text-base"
                   style={{ backgroundColor: "transparent" }}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
@@ -356,7 +390,7 @@ export default function AdminPage() {
                 <Button
                   onClick={logout}
                   variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-gray-900 bg-transparent"
+                  className="text-white border-white hover:bg-white hover:text-gray-900 bg-transparent text-sm sm:text-base"
                 >
                   Logout
                 </Button>
@@ -392,17 +426,17 @@ export default function AdminPage() {
               return (
                 <Card key={user.id}>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
                         <CardTitle className="text-lg">{user.name}</CardTitle>
                         <p className="text-sm text-gray-600">{user.email}</p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <Button
                           onClick={() => setSelectedUser(user.id)}
                           size="sm"
                           variant="outline"
-                          className="flex items-center gap-2"
+                          className="flex items-center justify-center gap-2 text-sm"
                         >
                           <Eye className="w-4 h-4" />
                           View History
@@ -411,15 +445,16 @@ export default function AdminPage() {
                           onClick={() => setShowDeleteConfirm(user.id)}
                           size="sm"
                           variant="outline"
-                          className="text-red-600 border-red-600 hover:bg-red-50"
+                          className="text-red-600 border-red-600 hover:bg-red-50 flex items-center justify-center gap-2 text-sm"
                         >
                           <Trash2 className="w-4 h-4" />
+                          Delete
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                       <div className="text-center p-3 bg-blue-50 rounded-lg">
                         <div className="text-2xl font-bold text-blue-600">{totalCompletions}</div>
                         <div className="text-sm text-blue-600">Total Exercises</div>
@@ -441,7 +476,7 @@ export default function AdminPage() {
                           {recentCompletions.map((completion, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded"
+                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm p-2 bg-gray-50 rounded gap-2"
                             >
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 rounded text-xs ${getSectionColor(completion.section)}`}>
@@ -470,23 +505,23 @@ export default function AdminPage() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-md mx-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <Card className="w-full max-w-md">
               <CardHeader>
                 <CardTitle className="text-red-600">Delete User</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="mb-4">
+                <p className="mb-4 text-sm sm:text-base">
                   Are you sure you want to delete {demoUsers.find((u) => u.id === showDeleteConfirm)?.name}? This will
                   permanently remove their account and all progress data.
                 </p>
-                <div className="flex gap-2 justify-end">
-                  <Button onClick={() => setShowDeleteConfirm(null)} variant="outline">
+                <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                  <Button onClick={() => setShowDeleteConfirm(null)} variant="outline" className="text-sm sm:text-base">
                     Cancel
                   </Button>
                   <Button
                     onClick={() => handleDeleteUser(showDeleteConfirm)}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base"
                   >
                     Delete User
                   </Button>
