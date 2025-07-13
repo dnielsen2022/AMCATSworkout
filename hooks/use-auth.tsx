@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
+const isBrowser = typeof window !== "undefined"
+
 interface User {
   id: string
   email: string
@@ -31,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem("amcats_user")
+    const storedUser = isBrowser ? localStorage.getItem("amcats_user") : null
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
@@ -47,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (email.includes("player") && password === "player123"))
     ) {
       setUser(foundUser)
-      localStorage.setItem("amcats_user", JSON.stringify(foundUser))
+      if (isBrowser) localStorage.setItem("amcats_user", JSON.stringify(foundUser))
       return true
     }
 
@@ -56,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("amcats_user")
+    if (isBrowser) localStorage.removeItem("amcats_user")
   }
 
   const deleteUser = (userId: string) => {
@@ -68,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Also remove their progress data
     const progressKey = `amcats_progress_${userId}`
-    localStorage.removeItem(progressKey)
+    if (isBrowser) localStorage.removeItem(progressKey)
   }
 
   return <AuthContext.Provider value={{ user, login, logout, deleteUser }}>{children}</AuthContext.Provider>

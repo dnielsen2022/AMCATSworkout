@@ -3,6 +3,8 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 
+const isBrowser = typeof window !== "undefined"
+
 interface ExerciseCompletion {
   exerciseId: string
   exerciseName: string
@@ -36,7 +38,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   // Get current user ID from localStorage
   const getCurrentUserId = () => {
-    const storedUser = localStorage.getItem("amcats_user")
+    const storedUser = isBrowser ? localStorage.getItem("amcats_user") : null
     if (storedUser) {
       const user = JSON.parse(storedUser)
       return user.id
@@ -49,14 +51,14 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     const userId = getCurrentUserId()
     if (userId) {
       const stored = localStorage.getItem(`amcats_progress_${userId}`)
-      if (stored) {
+      if (isBrowser && stored) {
         setCompletions(JSON.parse(stored))
       }
     }
   }, [])
 
   const saveCompletions = (userId: string, newCompletions: ExerciseCompletion[]) => {
-    localStorage.setItem(`amcats_progress_${userId}`, JSON.stringify(newCompletions))
+    if (isBrowser) localStorage.setItem(`amcats_progress_${userId}`, JSON.stringify(newCompletions))
 
     // If it's the current user, update state
     const currentUserId = getCurrentUserId()
@@ -138,6 +140,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getUserProgress = (userId: string): ExerciseCompletion[] => {
+    if (!isBrowser) return []
     const stored = localStorage.getItem(`amcats_progress_${userId}`)
     return stored ? JSON.parse(stored) : []
   }
@@ -161,7 +164,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   }
 
   const deleteUserProgress = (userId: string) => {
-    localStorage.removeItem(`amcats_progress_${userId}`)
+    if (isBrowser) localStorage.removeItem(`amcats_progress_${userId}`)
   }
 
   return (
