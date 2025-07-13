@@ -38,6 +38,8 @@ interface ProgressContextType {
     percentage: number
   }
   getAllUserProgress: () => { [userId: string]: ExerciseCompletion[] }
+  deleteUserProgress: (userId: string) => void
+  getUserProgress: (userId: string) => ExerciseCompletion[]
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined)
@@ -123,6 +125,28 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     return userProgress
   }
 
+  const getUserProgress = (userId: string) => {
+    const stored = localStorage.getItem("workout-completions")
+    if (!stored) return []
+
+    const allCompletions: ExerciseCompletion[] = JSON.parse(stored)
+    return allCompletions.filter((completion) => completion.userId === userId)
+  }
+
+  const deleteUserProgress = (userId: string) => {
+    const stored = localStorage.getItem("workout-completions")
+    if (!stored) return
+
+    const allCompletions: ExerciseCompletion[] = JSON.parse(stored)
+    const filteredCompletions = allCompletions.filter((completion) => completion.userId !== userId)
+    localStorage.setItem("workout-completions", JSON.stringify(filteredCompletions))
+
+    // Update local state if the deleted user is the current user
+    if (user && user.id === userId) {
+      setCompletions([])
+    }
+  }
+
   return (
     <ProgressContext.Provider
       value={{
@@ -131,6 +155,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         isExerciseComplete,
         getDayProgress,
         getAllUserProgress,
+        deleteUserProgress,
+        getUserProgress,
       }}
     >
       {children}

@@ -18,6 +18,8 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => void
   loading: boolean
+  deleteUser: (userId: string) => void
+  getAllUsers: () => User[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -53,6 +55,7 @@ const DEMO_USERS = [
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState(DEMO_USERS)
 
   useEffect(() => {
     // Check for stored user session
@@ -60,6 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
+
+    // Load users from localStorage
+    const storedUsers = localStorage.getItem("workout-users")
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers))
+    } else {
+      localStorage.setItem("workout-users", JSON.stringify(DEMO_USERS))
+    }
+
     setLoading(false)
   }, [])
 
@@ -67,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    const demoUser = DEMO_USERS.find((u) => u.email === email && u.password === password)
+    const demoUser = users.find((u) => u.email === email && u.password === password)
     if (!demoUser) {
       throw new Error("Invalid email or password")
     }
@@ -82,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Check if user already exists
-    const existingUser = DEMO_USERS.find((u) => u.email === email)
+    const existingUser = users.find((u) => u.email === email)
     if (existingUser) {
       throw new Error("User with this email already exists")
     }
@@ -96,11 +108,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString(),
     }
 
-    // In a real app, you'd save this to your database
-    DEMO_USERS.push({ ...newUser, password })
+    // Add to users array
+    const updatedUsers = [...users, { ...newUser, password }]
+    setUsers(updatedUsers)
+    localStorage.setItem("workout-users", JSON.stringify(updatedUsers))
 
     setUser(newUser)
     localStorage.setItem("workout-user", JSON.stringify(newUser))
+  }
+
+  const deleteUser = (userId: string) => {
+    const updatedUsers = users.filter((u) => u.id !== userId)
+    setUsers(updatedUsers)
+    localStorage.setItem("workout-users", JSON.stringify(updatedUsers))
+
+    // If the deleted user is currently logged in, log them out
+    if (user && user.id === userId) {
+      logout()
+    }
+  }
+
+  const getAllUsers = () => {
+    return users.map(({ password, ...user }) => user)
   }
 
   const logout = () => {
@@ -108,7 +137,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("workout-user")
   }
 
-  return <AuthContext.Provider value={{ user, login, register, logout, loading }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        loading,
+        deleteUser,
+        getAllUsers,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
